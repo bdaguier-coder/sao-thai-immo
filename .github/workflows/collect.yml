@@ -1,0 +1,23 @@
+name: Collecter des annonces publiques
+on:
+  schedule:
+    - cron: '20 7 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Chercher des annonces publiques
+        run: python3 scripts/collect_listings.py
+      - name: Enregistrer les nouvelles pistes
+        run: |
+          git config user.name "sao-thai-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/listings.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Actualiser les pistes commerciales"
+            git push
+          fi
